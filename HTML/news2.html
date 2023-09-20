@@ -63,8 +63,25 @@
       </div>
     </nav>
     <main>
-      <div id="car-list" class="row"></div>
+      <div id="card-list" class="row"></div>
     </main>
+    <div class="container mt-4">
+      <h3>Add News Item</h3>
+      <div class="mb-3">
+        <label for="news-title" class="form-label">News Item Title</label>
+        <input type="text" class="form-control" id="news-title" />
+      </div>
+      <div class="mb-3">
+        <label for="news-content" class="form-label">News Item Content</label>
+        <input type="text" class="form-control" id="news-content" />
+      </div>
+      <button class="btn btn-primary" onclick="addNewsItem()">
+        Add News Item
+      </button>
+      <button class="btn btn-danger" onclick="stopReloading()">
+        Stop Reloading
+      </button>
+    </div>
     <script>
       let news = [
         {
@@ -89,7 +106,7 @@
           setTimeout(function () {
             // resolve the promise with the car data after 1s
             resolve(news);
-          }, 3000);
+          }, 1000);
         });
       }
       // get data asynchronously, then console.log for testing
@@ -99,15 +116,42 @@
           .content.cloneNode(true);
         template.querySelector(".card-title").innerText = card.title;
         template.querySelector(".card-text").innerText = card.content;
-        document.querySelector("#car-list").appendChild(template);
+        document.querySelector("#card-list").appendChild(template);
       }
+
+      function addNewsItem() {
+        const title = document.getElementById("news-title").value;
+        const content = document.getElementById("news-content").value;
+
+        if (title && content) {
+          const newNewsItem = {
+            id: news.length + 1,
+            title: title,
+            content: content,
+          };
+
+          news.push(newNewsItem);
+
+          // Clear input fields
+          document.getElementById("news-title").value = "";
+          document.getElementById("news-content").value = "";
+        }
+      }
+
+      function stopReloading() {
+        clearInterval(intervalId); // Clear the interval to stop reloading
+      }
+
       if ("content" in document.createElement("template")) {
-        setInterval(() => {
-          document.getElementById("car-list").innerHTML = "";
+        const appendedNewsIds = [];
+        intervalId = setInterval(() => {
           getNews().then((news) => {
             console.log("set interval");
             news.forEach((aNews) => {
+              if (!appendedNewsIds.includes(aNews.id)) {
               addCard(aNews);
+              appendedNewsIds.push(aNews.id);
+              }
             });
           });
         }, 5000);
